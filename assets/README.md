@@ -17,6 +17,19 @@ Store reusable font files and generated font sources in `fonts/`.
 - Check Flash and internal-RAM impact before adding a font; the ESP32-C3 has no PSRAM.
 - Do not commit fonts whose license does not permit redistribution.
 
+| File | Use and license |
+| --- | --- |
+| [`fonts/Orbitron-Variable.ttf`](fonts/Orbitron-Variable.ttf) | Orbitron variable face by The League of Moveable Type, used for the Mac Voice screen. ASCII `U+0020`–`U+007E` is converted to `main/mv_font_16.c`, `main/mv_font_28.c`, and `main/mv_font_48.c` (4 bpp, no kerning). Non-Latin transcripts are not drawn with this face. |
+| [`fonts/OFL-Orbitron.txt`](fonts/OFL-Orbitron.txt) | SIL Open Font License 1.1 for Orbitron. |
+
+```bash
+npx lv_font_conv --font assets/fonts/Orbitron-Variable.ttf --size 16 --bpp 4 \
+  --format lvgl --range 0x20-0x7E --no-compress --no-kerning \
+  --lv-font-name mv_font_16 -o main/mv_font_16.c
+```
+
+Repeat with sizes 28 and 48 and names `mv_font_28` and `mv_font_48`. The generated C files live in `main/` because the firmware links them directly. Flash cost is about 400 KB for the three sizes.
+
 ## Images
 
 Store reusable source images and generated display assets in `images/`.

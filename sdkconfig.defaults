@@ -19,14 +19,14 @@ CONFIG_ESP_CONSOLE_SECONDARY_NONE=y
 
 # --- LVGL ---
 CONFIG_LV_COLOR_DEPTH_16=y
-# 20 ms display refresh period targets up to 50 FPS when rendering and SPI
-# transfer complete within the same budget.
-CONFIG_LV_DEF_REFR_PERIOD=20
+# 100 ms is enough for a static screen and a once-per-second timer.
+# A 20 ms refresh keeps the display task awake and adds heat.
+CONFIG_LV_DEF_REFR_PERIOD=100
 CONFIG_LV_FONT_MONTSERRAT_14=y
 CONFIG_LV_FONT_MONTSERRAT_20=y
 # LVGL 内置 malloc 池大小(KB)。它是独立静态区、不与系统堆共享,配大了会白白占用 RAM。
 # 本 demo UI 简单,24KB 足够;若自建复杂界面出现绘制卡死/看门狗,调大此值。
-CONFIG_LV_MEM_SIZE_KILOBYTES=24
+CONFIG_LV_MEM_SIZE_KILOBYTES=32
 
 # --- 系统 ---
 CONFIG_FREERTOS_HZ=1000
@@ -42,3 +42,5 @@ CONFIG_BT_NIMBLE_ROLE_OBSERVER=n
 CONFIG_BT_NIMBLE_MAX_CONNECTIONS=1
 CONFIG_BT_NIMBLE_HOST_BASED_PRIVACY=n
 CONFIG_BT_NIMBLE_NVS_PERSIST=n
+# Voice frames are 168 bytes, so the link needs a large ATT payload.
+CONFIG_BT_NIMBLE_ATT_PREFERRED_MTU=256

@@ -15,6 +15,19 @@
 - 添加字库前评估 Flash 与内部 RAM 影响；ESP32-C3 无 PSRAM。
 - 不提交许可不允许分发的字库。
 
+| 文件 | 用途与许可 |
+| --- | --- |
+| [`fonts/Orbitron-Variable.ttf`](fonts/Orbitron-Variable.ttf) | The League of Moveable Type 的 Orbitron 可变字体，用于 Mac Voice 界面。ASCII `U+0020`–`U+007E` 转为 `main/mv_font_16.c`、`main/mv_font_28.c`、`main/mv_font_48.c`（4 bpp，无字距）。此字体不绘制非拉丁文转写。 |
+| [`fonts/OFL-Orbitron.txt`](fonts/OFL-Orbitron.txt) | Orbitron 的 SIL Open Font License 1.1。 |
+
+```bash
+npx lv_font_conv --font assets/fonts/Orbitron-Variable.ttf --size 16 --bpp 4 \
+  --format lvgl --range 0x20-0x7E --no-compress --no-kerning \
+  --lv-font-name mv_font_16 -o main/mv_font_16.c
+```
+
+28 与 48 像素按同样方式生成，名称分别为 `mv_font_28` 和 `mv_font_48`。生成的 C 文件放在 `main/`，由固件直接链接。三个字号大约占用 400 KB Flash。
+
 ## 图片（images）
 
 可复用的源图与生成的显示资产放在 `images/`。
