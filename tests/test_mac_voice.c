@@ -126,6 +126,16 @@ static void test_shapes_time_and_utf8(void)
     assert(strcmp(elapsed, "1") == 0);
     mac_voice_format_elapsed(62050, elapsed, sizeof(elapsed));
     assert(strcmp(elapsed, "62") == 0);
+    assert(mac_voice_bar_height(0, 0, false) == 14);
+    assert(mac_voice_bar_height(0, 2, true) == 23);
+    assert(mac_voice_bar_height(8, 0, false) == 54);
+    assert(mac_voice_bar_height(99, 0, true) == 8);
+    for (unsigned i = 0; i < 15; i++) {
+        for (unsigned phase = 0; phase < 8; phase++) {
+            int height = mac_voice_bar_height(i, phase, true);
+            assert(height >= 8 && height <= 58);
+        }
+    }
     assert(mac_voice_spin_degree(0) == 0);
     assert(mac_voice_spin_degree(1200) == 180);
     assert(mac_voice_spin_degree(2400) == 0);
