@@ -50,12 +50,22 @@ void mac_voice_set_link(mac_voice_model_t *model, bool ready, mac_voice_actions_
     bool was = model->link_ready;
     model->link_ready = ready;
     if (was && !ready && model->phase == MAC_VOICE_PHASE_LISTENING) {
+        actions_add(out, MAC_VOICE_CMD_AUDIO_STOP);
+        if (model->text[0] != '\0') {
+            model->phase = MAC_VOICE_PHASE_REVIEW;
+            model->status = MAC_VOICE_STATUS_NO_LINK;
+            return;
+        }
         model->phase = MAC_VOICE_PHASE_IDLE;
         model->status = MAC_VOICE_STATUS_NO_LINK;
-        actions_add(out, MAC_VOICE_CMD_AUDIO_STOP);
         return;
     }
     if (was && !ready && model->phase == MAC_VOICE_PHASE_TRANSCRIBING) {
+        if (model->text[0] != '\0') {
+            model->phase = MAC_VOICE_PHASE_REVIEW;
+            model->status = MAC_VOICE_STATUS_NO_LINK;
+            return;
+        }
         model->phase = MAC_VOICE_PHASE_IDLE;
         model->status = MAC_VOICE_STATUS_NO_LINK;
         model->text[0] = '\0';
@@ -78,10 +88,16 @@ void mac_voice_set_link(mac_voice_model_t *model, bool ready, mac_voice_actions_
     }
 }
 
-static void copy_transcript(char *dst, size_t cap, const char *src)
+static void append_transcript(char *dst, size_t cap, const char *src)
 {
+    size_t used;
     size_t n = 0;
     if (cap == 0) return;
+    used = strlen(dst);
+    if (used >= cap) {
+        dst[cap - 1] = '\0';
+        return;
+    }
     while (src[n] != '\0') {
         unsigned char lead = (unsigned char)src[n];
         size_t need = 1;
@@ -90,7 +106,7 @@ static void copy_transcript(char *dst, size_t cap, const char *src)
         else if ((lead & 0xF0) == 0xE0) need = 3;
         else if ((lead & 0xF8) == 0xF0) need = 4;
         else break;
-        if (n + need >= cap) break;
+        if (used + n + need >= cap) break;
         bool ok = true;
         for (size_t k = 1; k < need; k++) {
             if (((unsigned char)src[n + k] & 0xC0) != 0x80) ok = false;
@@ -98,21 +114,26 @@ static void copy_transcript(char *dst, size_t cap, const char *src)
         if (!ok || src[n + need - 1] == '\0') break;
         n += need;
     }
-    memcpy(dst, src, n);
-    dst[n] = '\0';
+    memcpy(dst + used, src, n);
+    dst[used + n] = '\0';
 }
 
 static void begin_listen(mac_voice_model_t *model, mac_voice_actions_t *out)
 {
-    size_t existing = mac_voice_utf8_count(model->text);
-    if (existing > 0) {
-        if (out) out->clear_count = (uint16_t)existing;
-        actions_add(out, MAC_VOICE_CMD_CLEAR);
-        model->text[0] = '\0';
-    }
     model->phase = MAC_VOICE_PHASE_LISTENING;
     model->status = MAC_VOICE_STATUS_LISTENING;
     actions_add(out, MAC_VOICE_CMD_AUDIO_START);
+}
+
+static void keep_or_retry(mac_voice_model_t *model)
+{
+    if (model->text[0] != '\0') {
+        model->phase = MAC_VOICE_PHASE_REVIEW;
+        model->status = model->link_ready ? MAC_VOICE_STATUS_REVIEW : MAC_VOICE_STATUS_NO_LINK;
+        return;
+    }
+    model->phase = MAC_VOICE_PHASE_IDLE;
+    model->status = MAC_VOICE_STATUS_TRY_AGAIN;
 }
 
 void mac_voice_handle(mac_voice_model_t *model, mac_voice_input_t input,
@@ -166,12 +187,10 @@ void mac_voice_handle(mac_voice_model_t *model, mac_voice_input_t input,
     case MAC_VOICE_IN_TRANSCRIPT:
         if (model->phase != MAC_VOICE_PHASE_TRANSCRIBING) return;
         if (!transcript || transcript[0] == '\0' || strspn(transcript, " \t\r\n") == strlen(transcript)) {
-            model->text[0] = '\0';
-            model->phase = MAC_VOICE_PHASE_IDLE;
-            model->status = MAC_VOICE_STATUS_TRY_AGAIN;
+            keep_or_retry(model);
             return;
         }
-        copy_transcript(model->text, sizeof(model->text), transcript);
+        append_transcript(model->text, sizeof(model->text), transcript);
         model->phase = MAC_VOICE_PHASE_REVIEW;
         model->status = model->link_ready ? MAC_VOICE_STATUS_REVIEW : MAC_VOICE_STATUS_NO_LINK;
         return;
@@ -182,9 +201,7 @@ void mac_voice_handle(mac_voice_model_t *model, mac_voice_input_t input,
             return;
         }
         bool listening = model->phase == MAC_VOICE_PHASE_LISTENING;
-        model->text[0] = '\0';
-        model->phase = MAC_VOICE_PHASE_IDLE;
-        model->status = MAC_VOICE_STATUS_TRY_AGAIN;
+        keep_or_retry(model);
         if (listening) actions_add(out, MAC_VOICE_CMD_AUDIO_STOP);
         return;
     }

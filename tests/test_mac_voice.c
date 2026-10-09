@@ -72,17 +72,39 @@ static void test_gates_and_replace(void)
     mac_voice_handle(&model, MAC_VOICE_IN_TRANSCRIPT, "Ab", &act);
     mac_voice_handle(&model, MAC_VOICE_IN_OK_DOWN, NULL, &act);
     assert(model.phase == MAC_VOICE_PHASE_LISTENING);
-    assert(model.text[0] == '\0');
-    assert(act.clear_count == 2);
-    assert(act.items[0] == MAC_VOICE_CMD_CLEAR);
-    assert(act.items[1] == MAC_VOICE_CMD_AUDIO_START);
+    assert(strcmp(model.text, "Ab") == 0);
+    assert(act.clear_count == 0);
+    assert(act.count == 1);
+    assert(act.items[0] == MAC_VOICE_CMD_AUDIO_START);
 
+    mac_voice_handle(&model, MAC_VOICE_IN_OK_UP, NULL, &act);
+    mac_voice_handle(&model, MAC_VOICE_IN_TRANSCRIPT, "c", &act);
+    assert(model.phase == MAC_VOICE_PHASE_REVIEW);
+    assert(strcmp(model.text, "Abc") == 0);
+    mac_voice_handle(&model, MAC_VOICE_IN_UP_CLICK, NULL, &act);
+    assert(strcmp(model.text, "Ab") == 0);
+    assert(act.items[0] == MAC_VOICE_CMD_DELETE);
+
+    mac_voice_handle(&model, MAC_VOICE_IN_OK_DOWN, NULL, &act);
     mac_voice_set_link(&model, false, &act);
-    assert(model.phase == MAC_VOICE_PHASE_IDLE);
+    assert(model.phase == MAC_VOICE_PHASE_REVIEW);
+    assert(strcmp(model.text, "Ab") == 0);
     assert(act.items[0] == MAC_VOICE_CMD_AUDIO_STOP);
     assert(model.status == MAC_VOICE_STATUS_NO_LINK);
 
     mac_voice_set_link(&model, true, &act);
+    assert(model.status == MAC_VOICE_STATUS_REVIEW);
+    mac_voice_handle(&model, MAC_VOICE_IN_DOWN_CLICK, NULL, &act);
+    assert(model.phase == MAC_VOICE_PHASE_IDLE);
+    assert(model.text[0] == '\0');
+    assert(act.items[0] == MAC_VOICE_CMD_SEND);
+
+    mac_voice_handle(&model, MAC_VOICE_IN_OK_DOWN, NULL, &act);
+    mac_voice_set_link(&model, false, &act);
+    assert(model.phase == MAC_VOICE_PHASE_IDLE);
+    assert(act.items[0] == MAC_VOICE_CMD_AUDIO_STOP);
+    mac_voice_set_link(&model, true, &act);
+
     mac_voice_handle(&model, MAC_VOICE_IN_OK_DOWN, NULL, &act);
     mac_voice_handle(&model, MAC_VOICE_IN_OK_UP, NULL, &act);
     mac_voice_handle(&model, MAC_VOICE_IN_TRANSCRIPT, "   ", &act);
@@ -99,6 +121,11 @@ static void test_gates_and_replace(void)
     mac_voice_handle(&model, MAC_VOICE_IN_OK_DOWN, NULL, &act);
     mac_voice_handle(&model, MAC_VOICE_IN_OK_UP, NULL, &act);
     mac_voice_handle(&model, MAC_VOICE_IN_TRANSCRIPT, "\xE4\xBD\xA0", &act);
+    mac_voice_handle(&model, MAC_VOICE_IN_OK_DOWN, NULL, &act);
+    mac_voice_handle(&model, MAC_VOICE_IN_OK_UP, NULL, &act);
+    mac_voice_handle(&model, MAC_VOICE_IN_FAIL, NULL, &act);
+    assert(model.phase == MAC_VOICE_PHASE_REVIEW);
+    assert(strcmp(model.text, "\xE4\xBD\xA0") == 0);
     assert(!mac_voice_text_is_latin(model.text));
     mac_voice_preview(&model, preview, sizeof(preview));
     assert(strcmp(preview, "1 CHARS") == 0);
