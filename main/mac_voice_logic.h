@@ -78,7 +78,6 @@ const char *mac_voice_status_text(mac_voice_status_t status);
 const char *mac_voice_shape_name(mac_voice_shape_t shape);
 void mac_voice_preview(const mac_voice_model_t *model, char *out, size_t out_len);
 void mac_voice_format_elapsed(uint32_t elapsed_ms, char *out, size_t out_len);
-int mac_voice_bar_height(unsigned index, unsigned phase, bool live);
 uint16_t mac_voice_spin_degree(uint32_t elapsed_ms);
 bool mac_voice_text_is_latin(const char *text);
 size_t mac_voice_utf8_count(const char *text);

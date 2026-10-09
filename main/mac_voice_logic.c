@@ -238,22 +238,6 @@ void mac_voice_format_elapsed(uint32_t elapsed_ms, char *out, size_t out_len)
     snprintf(out, out_len, "%lu", (unsigned long)elapsed_ms);
 }
 
-int mac_voice_bar_height(unsigned index, unsigned phase, bool live)
-{
-    static const uint8_t rest[15] = {
-        14, 24, 36, 18, 42, 28, 50, 34, 54, 30, 44, 20, 32, 16, 12
-    };
-    static const int8_t wave[8] = { 0, 5, 9, 5, 0, -4, -7, -4 };
-    int height;
-
-    if (index >= 15) return 8;
-    height = rest[index];
-    if (live) height += wave[(phase + index) & 7];
-    if (height < 8) height = 8;
-    if (height > 58) height = 58;
-    return height;
-}
-
 uint16_t mac_voice_spin_degree(uint32_t elapsed_ms)
 {
     return (uint16_t)((elapsed_ms % 2400u) * 360u / 2400u);

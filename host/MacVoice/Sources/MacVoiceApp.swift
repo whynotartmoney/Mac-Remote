@@ -1,5 +1,4 @@
 import AppKit
-import Combine
 import ApplicationServices
 import AVFoundation
 import CoreBluetooth
@@ -553,140 +552,38 @@ private enum AppFonts {
     }
 }
 
-private enum Palette {
-    static let ink = Color(red: 0.027, green: 0.043, blue: 0.071)
-    static let cyan = Color(red: 0.180, green: 0.906, blue: 1.0)
-    static let lime = Color(red: 0.776, green: 0.961, blue: 0.290)
-    static let text = Color(red: 0.957, green: 0.973, blue: 0.984)
-    static let dim = Color(red: 0.557, green: 0.643, blue: 0.690)
-    static let card = Color(red: 0.047, green: 0.078, blue: 0.125)
-    static let line = Color(red: 0.110, green: 0.486, blue: 0.588)
-}
-
-private enum Waveform {
-    static let rest = [14, 24, 36, 18, 42, 28, 50, 34, 54, 30, 44, 20, 32, 16, 12]
-    static let wave = [0, 5, 9, 5, 0, -4, -7, -4]
-
-    static func height(_ index: Int, phase: Int, live: Bool) -> CGFloat {
-        guard rest.indices.contains(index) else { return 8 }
-        var value = rest[index]
-        if live { value += wave[(phase + index) & 7] }
-        return CGFloat(min(58, max(8, value))) * 1.5
-    }
-
-    static func color(_ index: Int) -> Color {
-        let hex = [
-            0x2EE7FF, 0x3AE8F0, 0x4AE8D4, 0x62EEA8, 0x86F478,
-            0xA8F85C, 0xC6F54A, 0xD2F644, 0xC6F54A, 0xA8F85C,
-            0x86F478, 0x62EEA8, 0x4AE8D4, 0x3AE8F0, 0x2EE7FF
-        ]
-        let value = hex[min(max(index, 0), hex.count - 1)]
-        return Color(
-            red: Double((value >> 16) & 0xFF) / 255,
-            green: Double((value >> 8) & 0xFF) / 255,
-            blue: Double(value & 0xFF) / 255
-        )
-    }
-}
-
-private struct WaveBars: View {
-    var live: Bool
-    @State private var phase = 0
-
-    var body: some View {
-        HStack(alignment: .bottom, spacing: 8) {
-            ForEach(0..<15, id: \.self) { index in
-                RoundedRectangle(cornerRadius: 3)
-                    .fill(Waveform.color(index))
-                    .frame(width: 8, height: Waveform.height(index, phase: phase, live: live))
-                    .opacity(live ? 1 : 0.4)
-            }
-        }
-        .frame(height: 96, alignment: .bottom)
-        .onReceive(Timer.publish(every: 0.14, on: .main, in: .common).autoconnect()) { _ in
-            if live { phase = (phase + 1) & 7 }
-        }
-    }
-}
-
-private struct MicButton: View {
-    var live: Bool
-
-    var body: some View {
-        ZStack {
-            Circle()
-                .fill(Palette.cyan.opacity(live ? 0.22 : 0.08))
-                .frame(width: 108, height: 108)
-            Circle()
-                .stroke(Palette.cyan.opacity(live ? 1 : 0.5), lineWidth: 2)
-                .background(Circle().fill(Color(red: 0.039, green: 0.071, blue: 0.094)))
-                .frame(width: 78, height: 78)
-            Image(systemName: "mic")
-                .font(.system(size: 26, weight: .regular))
-                .foregroundStyle(Palette.cyan.opacity(live ? 1 : 0.5))
-        }
-    }
-}
-
 private struct RootView: View {
     @StateObject private var link = VoiceLink()
 
-    private var live: Bool {
-        switch link.status {
-        case "CANTONESE", "MANDARIN", "ENGLISH", "LISTENING":
-            return true
-        default:
-            return false
-        }
-    }
-
     var body: some View {
         ZStack {
-            Palette.ink.ignoresSafeArea()
-            VStack(spacing: 28) {
-                HStack {
-                    Text(live ? "REC" : " ")
-                        .font(AppFonts.face(14))
-                        .foregroundStyle(Palette.text)
-                    Spacer()
-                    if live {
-                        HStack(spacing: 8) {
-                            Circle().fill(Palette.lime).frame(width: 8, height: 8)
-                            Text("LIVE")
-                                .font(AppFonts.face(14))
-                                .foregroundStyle(Palette.lime)
-                        }
-                    }
-                }
-                Text(live ? "LISTENING" : link.status)
+            Color(red: 0.027, green: 0.067, blue: 0.059).ignoresSafeArea()
+            Circle()
+                .stroke(Color(red: 0.224, green: 0.949, blue: 0.776), lineWidth: 2)
+                .frame(width: 180, height: 180)
+            VStack(alignment: .leading, spacing: 18) {
+                Text("MAC VOICE")
                     .font(AppFonts.face(22))
-                    .tracking(4)
-                    .foregroundStyle(Palette.cyan)
-                WaveBars(live: live)
-                MicButton(live: live)
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("TRANSCRIPT")
-                        .font(AppFonts.face(13))
-                        .tracking(1)
-                        .foregroundStyle(Palette.lime)
-                    Text(link.transcript.isEmpty ? (live ? "..." : link.hint) : "\"\(link.transcript)\"")
-                        .font(AppFonts.face(16))
-                        .foregroundStyle(Palette.text)
-                        .frame(maxWidth: .infinity, minHeight: 48, alignment: .topLeading)
-                    Text(live ? link.status : "Hold OK to speak. UP deletes. DOWN sends.")
-                        .font(AppFonts.face(13))
-                        .foregroundStyle(Palette.cyan)
-                        .lineLimit(2)
-                }
-                .padding(16)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Palette.card, in: RoundedRectangle(cornerRadius: 16))
-                .overlay(RoundedRectangle(cornerRadius: 16).stroke(Palette.line, lineWidth: 1))
+                    .foregroundStyle(Color(red: 0.224, green: 0.949, blue: 0.776))
+                Text(link.status)
+                    .font(AppFonts.face(28))
+                    .foregroundStyle(Color(red: 0.843, green: 1.0, blue: 0.957))
+                Text(link.transcript.isEmpty ? " " : link.transcript)
+                    .font(AppFonts.face(16))
+                    .foregroundStyle(Color(red: 0.843, green: 1.0, blue: 0.957))
+                    .frame(maxWidth: .infinity, minHeight: 88, alignment: .topLeading)
+                Text(link.hint)
+                    .font(AppFonts.face(16))
+                    .foregroundStyle(Color(red: 0.494, green: 0.620, blue: 0.588))
+                Text("It connects by itself. Do not pair it in System Settings. Hold OK to speak. UP deletes one character. DOWN sends.")
+                    .font(AppFonts.face(16))
+                    .foregroundStyle(Color(red: 0.494, green: 0.620, blue: 0.588))
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer()
             }
             .padding(28)
-            .frame(maxWidth: 420)
         }
-        .frame(minWidth: 420, minHeight: 640)
+        .frame(minWidth: 420, minHeight: 520)
         .onAppear {
             AppFonts.register()
             link.start()
@@ -711,7 +608,7 @@ struct MacVoiceApp: App {
         Window("Mac Voice", id: "main") {
             RootView()
         }
-        .defaultSize(width: 440, height: 700)
+        .defaultSize(width: 440, height: 560)
     }
 }
 
