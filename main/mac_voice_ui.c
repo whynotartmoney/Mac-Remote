@@ -27,7 +27,7 @@ void mac_voice_ui_create(void)
     lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, 0);
 
     title = lv_label_create(scr);
-    lv_label_set_text(title, "MAC VOICE");
+    lv_label_set_text(title, "PC VOICE");
     lv_obj_set_style_text_font(title, &mv_font_16, 0);
     lv_obj_set_style_text_color(title, lv_color_hex(MV_LINE), 0);
     lv_obj_set_style_text_letter_space(title, 2, 0);
@@ -73,7 +73,7 @@ void mac_voice_ui_create(void)
     lv_obj_align(s_preview, LV_ALIGN_BOTTOM_MID, 0, -72);
 
     s_status = lv_label_create(scr);
-    lv_label_set_text(s_status, "OPEN MACVOICE");
+    lv_label_set_text(s_status, "OPEN PCVOICE");
     lv_obj_set_width(s_status, 200);
     lv_label_set_long_mode(s_status, LV_LABEL_LONG_WRAP);
     lv_obj_set_style_text_font(s_status, &mv_font_16, 0);

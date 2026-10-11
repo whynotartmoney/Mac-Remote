@@ -17,7 +17,7 @@
 
 | 文件 | 用途与许可 |
 | --- | --- |
-| [`fonts/Orbitron-Variable.ttf`](fonts/Orbitron-Variable.ttf) | The League of Moveable Type 的 Orbitron 可变字体，用于 Mac Voice 界面。ASCII `U+0020`–`U+007E` 转为 `main/mv_font_16.c`、`main/mv_font_28.c`、`main/mv_font_48.c`（4 bpp，无字距）。此字体不绘制非拉丁文转写。 |
+| [`fonts/Orbitron-Variable.ttf`](fonts/Orbitron-Variable.ttf) | The League of Moveable Type 的 Orbitron 可变字体，用于 PC Voice 界面。ASCII `U+0020`–`U+007E` 转为 `main/mv_font_16.c`、`main/mv_font_28.c`、`main/mv_font_48.c`（4 bpp，无字距）。此字体不绘制非拉丁文转写。 |
 | [`fonts/OFL-Orbitron.txt`](fonts/OFL-Orbitron.txt) | Orbitron 的 SIL Open Font License 1.1。 |
 
 ```bash

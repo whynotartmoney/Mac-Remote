@@ -19,7 +19,7 @@ Store reusable font files and generated font sources in `fonts/`.
 
 | File | Use and license |
 | --- | --- |
-| [`fonts/Orbitron-Variable.ttf`](fonts/Orbitron-Variable.ttf) | Orbitron variable face by The League of Moveable Type, used for the Mac Voice screen. ASCII `U+0020`–`U+007E` is converted to `main/mv_font_16.c`, `main/mv_font_28.c`, and `main/mv_font_48.c` (4 bpp, no kerning). Non-Latin transcripts are not drawn with this face. |
+| [`fonts/Orbitron-Variable.ttf`](fonts/Orbitron-Variable.ttf) | Orbitron variable face by The League of Moveable Type, used for the PC Voice screen. ASCII `U+0020`–`U+007E` is converted to `main/mv_font_16.c`, `main/mv_font_28.c`, and `main/mv_font_48.c` (4 bpp, no kerning). Non-Latin transcripts are not drawn with this face. |
 | [`fonts/OFL-Orbitron.txt`](fonts/OFL-Orbitron.txt) | SIL Open Font License 1.1 for Orbitron. |
 
 ```bash

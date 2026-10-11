@@ -65,6 +65,7 @@ static void test_gates_and_replace(void)
     mac_voice_set_mic(&model, true);
     mac_voice_handle(&model, MAC_VOICE_IN_OK_DOWN, NULL, &act);
     assert(model.status == MAC_VOICE_STATUS_NO_LINK);
+    assert(strcmp(mac_voice_status_text(model.status), "OPEN PCVOICE") == 0);
 
     mac_voice_set_link(&model, true, &act);
     mac_voice_handle(&model, MAC_VOICE_IN_OK_DOWN, NULL, &act);

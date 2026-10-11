@@ -211,7 +211,7 @@ const char *mac_voice_status_text(mac_voice_status_t status)
 {
     switch (status) {
     case MAC_VOICE_STATUS_HOLD: return "HOLD OK";
-    case MAC_VOICE_STATUS_NO_LINK: return "OPEN MACVOICE";
+    case MAC_VOICE_STATUS_NO_LINK: return "OPEN PCVOICE";
     case MAC_VOICE_STATUS_WAIT: return "WAIT";
     case MAC_VOICE_STATUS_NO_MIC: return "NO MIC";
     case MAC_VOICE_STATUS_LISTENING: return "LISTENING";

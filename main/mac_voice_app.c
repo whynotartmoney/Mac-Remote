@@ -202,7 +202,7 @@ static void on_write(const mac_voice_app_event_t *event)
     size_t chunk;
     if (event->len == 0) return;
     op = (uint8_t)event->bytes[0];
-    if (op == 0x01 && event->len >= 4 && event->bytes[1] == 'M' &&
+    if (op == 0x01 && event->len >= 4 && event->bytes[1] == 'P' &&
         event->bytes[2] == 'V' && event->bytes[3] == 1) {
         s_hello = true;
         recompute_link();
@@ -340,7 +340,7 @@ bool mac_voice_app_post(const mac_voice_app_event_t *event)
 void mac_voice_app_start(void)
 {
     bool mic_ok;
-    ESP_LOGI(TAG, "Mac Voice starting");
+    ESP_LOGI(TAG, "PC Voice starting");
     esp_err_t nvs_err = nvs_flash_init();
     if (nvs_err != ESP_OK) {
         ESP_LOGE(TAG, "NVS init failed: %s", esp_err_to_name(nvs_err));

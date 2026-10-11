@@ -20,7 +20,7 @@
 #include <string.h>
 
 static const char *TAG = "mac_link";
-static const char *DEVICE_NAME = "MacVoice";
+static const char *DEVICE_NAME = "PcVoice";
 
 /* UUID strings, least-significant byte first, matching NimBLE BLE_UUID128_INIT.
  * Service F7A1C3E0-5B24-4D91-8C6E-1A2B3C4D5E6F
@@ -109,7 +109,7 @@ static int advertise(void)
     params.conn_mode = BLE_GAP_CONN_MODE_UND;
     params.disc_mode = BLE_GAP_DISC_MODE_GEN;
     /* 0.625 ms units. A zero interval falls back to NimBLE's 30 ms fast
-     * advertising and keeps the radio hot while waiting for a Mac. */
+     * advertising and keeps the radio hot while waiting for a PC. */
     params.itvl_min = BLE_GAP_ADV_ITVL_MS(800);
     params.itvl_max = BLE_GAP_ADV_ITVL_MS(1200);
     return ble_gap_adv_start(s_addr_type, NULL, BLE_HS_FOREVER, &params, gap_event, NULL);
